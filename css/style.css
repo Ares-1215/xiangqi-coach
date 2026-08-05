@@ -1,0 +1,188 @@
+:root {
+  --wood: #e9c187;
+  --wood-line: #6b4423;
+  --red: #c0392b;
+  --black: #1f2430;
+  --disc: #f7efd8;
+  --disc-edge: #b8935a;
+  --bg: #f4f1ea;
+  --card: #ffffff;
+  --ink: #2b2b2b;
+  --muted: #7a7a7a;
+  --accent: #2e7d5b;
+  --accent-red: #c0392b;
+  --hl: rgba(46, 125, 91, 0.35);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.6;
+}
+
+.topbar {
+  text-align: center;
+  padding: 20px 16px 8px;
+}
+.topbar h1 { margin: 0; font-size: 1.8rem; letter-spacing: 2px; color: var(--wood-line); }
+.tagline { margin: 4px 0 0; color: var(--muted); font-size: 0.95rem; }
+
+.layout {
+  display: flex;
+  gap: 24px;
+  max-width: 1080px;
+  margin: 12px auto;
+  padding: 0 16px;
+  align-items: flex-start;
+}
+.board-col { flex: 0 0 auto; }
+.panel { flex: 1 1 340px; min-width: 300px; display: flex; flex-direction: column; gap: 16px; }
+
+/* ---- 棋盤 ---- */
+.board-wrap {
+  background: var(--wood);
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+.board {
+  position: relative;
+  width: 460px;
+  max-width: 82vw;
+  aspect-ratio: 552 / 612;
+}
+.board-bg, .board-arrow {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.board-arrow { z-index: 3; }
+.pieces { position: absolute; inset: 0; z-index: 2; }
+
+.piece {
+  position: absolute;
+  width: 10.5%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fffaf0, var(--disc) 60%, #e7d6ac);
+  border: 2px solid var(--disc-edge);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(15px, 5.4vw, 26px);
+  font-weight: 800;
+  cursor: pointer;
+  user-select: none;
+  transition: box-shadow 0.1s, transform 0.05s;
+}
+.piece.red { color: var(--red); }
+.piece.black { color: var(--black); }
+.piece:hover { box-shadow: 0 0 0 3px var(--hl), 0 2px 4px rgba(0,0,0,.3); }
+.piece.selected { box-shadow: 0 0 0 4px var(--accent), 0 2px 6px rgba(0,0,0,.35); }
+
+/* 落子熱區（透明，覆蓋交叉點） */
+.hot {
+  position: absolute;
+  width: 11%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  z-index: 1;
+  cursor: pointer;
+}
+.hot.target { background: var(--hl); }
+
+.side-turn { text-align: center; margin-top: 12px; }
+.turn-btn {
+  border: 1px solid var(--disc-edge);
+  background: #fff;
+  padding: 6px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  margin: 0 4px;
+  font-size: 0.9rem;
+}
+.turn-btn.active { background: var(--wood-line); color: #fff; border-color: var(--wood-line); }
+
+/* ---- 面板卡片 ---- */
+.card {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+.card h2 { margin: 0 0 12px; font-size: 1.05rem; color: var(--wood-line); }
+
+.palette { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
+.pchip {
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 2px solid var(--disc-edge);
+  background: radial-gradient(circle at 35% 30%, #fffaf0, var(--disc) 60%, #e7d6ac);
+  font-weight: 800; font-size: 1.1rem; cursor: pointer;
+}
+.pchip.red { color: var(--red); }
+.pchip.black { color: var(--black); }
+.pchip.active { box-shadow: 0 0 0 3px var(--accent); }
+.palette-tools { display: flex; gap: 8px; margin: 8px 0; }
+.tool {
+  flex: 1; padding: 8px; border: 1px solid #ddd; background: #fafafa;
+  border-radius: 8px; cursor: pointer; font-size: 0.9rem;
+}
+.tool.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+.row-btns { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.row-btns button, .primary-ghost {
+  flex: 1; min-width: 90px; padding: 9px; border: 1px solid var(--disc-edge);
+  background: #fff; border-radius: 8px; cursor: pointer; font-size: 0.9rem;
+}
+.row-btns button:hover, .tool:hover, .primary-ghost:hover { background: #f2ede0; }
+
+.primary {
+  width: 100%; padding: 13px; border: none; border-radius: 10px;
+  background: var(--accent-red); color: #fff; font-size: 1.05rem; font-weight: 700;
+  cursor: pointer; margin-top: 6px;
+}
+.primary:hover { background: #a5322a; }
+.primary:disabled { opacity: 0.5; cursor: wait; }
+.primary-ghost { width: 100%; margin-top: 8px; font-weight: 600; }
+
+.hint { color: var(--muted); font-size: 0.82rem; margin: 6px 0 0; }
+.hint.tiny { font-size: 0.75rem; }
+
+.key-box { margin-top: 10px; font-size: 0.9rem; }
+.key-box summary { cursor: pointer; color: var(--accent); }
+.key-box input { width: 100%; padding: 8px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; }
+.key-box button { padding: 6px 12px; border: 1px solid var(--disc-edge); background: #fff; border-radius: 6px; cursor: pointer; }
+
+.difficulty { margin-bottom: 8px; font-size: 0.9rem; }
+.difficulty select { padding: 5px; border-radius: 6px; border: 1px solid #ccc; }
+
+.status { font-size: 0.85rem; margin-top: 8px; min-height: 1.2em; color: var(--muted); }
+.status.err { color: var(--accent-red); }
+.status.ok { color: var(--accent); }
+
+/* ---- 結果 ---- */
+.result { margin-top: 14px; border-top: 1px dashed #ddd; padding-top: 12px; }
+.result.hidden, .hidden { display: none; }
+.best-move { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.best-move .label { color: var(--muted); font-size: 0.85rem; }
+.best-move .cn { font-size: 1.7rem; font-weight: 800; color: var(--accent-red); letter-spacing: 2px; }
+.best-move .uci { color: var(--muted); font-size: 0.9rem; }
+.eval { margin-top: 8px; font-size: 0.95rem; }
+.eval .bar { display: inline-block; height: 10px; border-radius: 5px; vertical-align: middle; }
+.pv { margin-top: 8px; font-size: 0.9rem; color: #444; }
+.pv b { color: var(--wood-line); }
+
+.foot { text-align: center; color: var(--muted); font-size: 0.8rem; padding: 20px; }
+
+@media (max-width: 860px) {
+  .layout { flex-direction: column; align-items: center; }
+  .panel { width: 100%; max-width: 460px; }
+}

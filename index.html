@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>象棋殘局教練 · 上傳殘局，解出下一步</title>
+    <!-- 必須最先載入：在 GitHub Pages 上注入 COOP/COEP，啟用 SharedArrayBuffer -->
+    <script src="coi-serviceworker.js"></script>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <h1>象棋殘局教練</h1>
+      <p class="tagline">擺出殘局，或上傳照片，讓引擎算出最佳下一步</p>
+    </header>
+
+    <main class="layout">
+      <!-- 左：棋盤 -->
+      <section class="board-col">
+        <div class="board-wrap">
+          <div id="board" class="board">
+            <svg id="board-bg" class="board-bg" viewBox="0 0 552 612" preserveAspectRatio="none"></svg>
+            <svg id="board-arrow" class="board-arrow" viewBox="0 0 552 612" preserveAspectRatio="none"></svg>
+            <div id="pieces" class="pieces"></div>
+          </div>
+        </div>
+
+        <div class="side-turn">
+          輪到：
+          <button id="turn-red" class="turn-btn active">紅方先走</button>
+          <button id="turn-black" class="turn-btn">黑方先走</button>
+        </div>
+      </section>
+
+      <!-- 右：控制與結果 -->
+      <section class="panel">
+        <div class="card">
+          <h2>1 · 擺放棋子</h2>
+          <div class="palette" id="palette-red"></div>
+          <div class="palette" id="palette-black"></div>
+          <div class="palette-tools">
+            <button class="tool" data-tool="erase">🧽 橡皮擦</button>
+            <button class="tool" data-tool="move">✋ 移動/選取</button>
+          </div>
+          <p class="hint" id="edit-hint">選一個棋子後點棋盤落子；橡皮擦點棋子可移除。</p>
+          <div class="row-btns">
+            <button id="btn-start">起始局面</button>
+            <button id="btn-clear">清空棋盤</button>
+            <button id="btn-flip">翻轉視角</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>2 · 上傳殘局圖片（選用）</h2>
+          <input type="file" id="img-input" accept="image/*" hidden />
+          <button id="btn-upload" class="primary-ghost">📷 選擇殘局圖片</button>
+          <p class="hint">用 Google Gemini 自動辨識棋盤，辨識後請人工校對。</p>
+          <details class="key-box">
+            <summary>設定 Gemini API 金鑰</summary>
+            <input type="password" id="gemini-key" placeholder="貼上你的 Gemini API Key" />
+            <button id="btn-save-key">儲存金鑰</button>
+            <p class="hint tiny">金鑰只存在你這台瀏覽器（localStorage），不會上傳到伺服器或寫進網站原始碼。</p>
+          </details>
+          <div id="vision-status" class="status"></div>
+        </div>
+
+        <div class="card solve-card">
+          <h2>3 · 求解</h2>
+          <div class="difficulty">
+            難度：
+            <select id="difficulty">
+              <option value="500">快速（0.5 秒）</option>
+              <option value="2500" selected>標準（2.5 秒）</option>
+              <option value="6000">深入（6 秒）</option>
+            </select>
+          </div>
+          <button id="btn-solve" class="primary">🔍 算出最佳下一步</button>
+          <div id="engine-status" class="status"></div>
+
+          <div id="result" class="result hidden">
+            <div class="best-move">
+              <span class="label">建議著法</span>
+              <span id="best-cn" class="cn"></span>
+              <span id="best-uci" class="uci"></span>
+            </div>
+            <div id="eval" class="eval"></div>
+            <div id="pv" class="pv"></div>
+            <button id="btn-play" class="primary-ghost">▶️ 走這一步（換對方）</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="foot">
+      引擎：Fairy-Stockfish (WASM) · 純前端運算，資料不離開你的瀏覽器
+    </footer>
+
+    <!-- 引擎工廠：定義全域 Stockfish() -->
+    <script src="engine/stockfish.js"></script>
+    <script src="js/xiangqi.js"></script>
+    <script src="js/engine.js"></script>
+    <script src="js/vision.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>
