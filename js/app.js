@@ -265,28 +265,22 @@
     }
     const btn = $("btn-solve");
     btn.disabled = true;
-    setStatus(engineStatus, "引擎載入與思考中…", "");
+    const useWasm = Engine.envSupported();
+    const eng = useWasm ? Engine : JsEngine;
+    const engName = useWasm ? "" : "（內建輕量引擎）";
+    setStatus(engineStatus, `思考中…${engName}`, "");
     try {
-      if (!Engine.envSupported()) {
-        setStatus(
-          engineStatus,
-          "此環境未啟用多執行緒（crossOriginIsolated）。若在本機直接開檔請改用支援 COOP/COEP 的伺服器；部署到 GitHub Pages 會自動啟用。",
-          "err"
-        );
-        btn.disabled = false;
-        return;
-      }
       const fen = X.toFEN(board, side);
       const movetime = parseInt($("difficulty").value, 10);
-      const res = await Engine.analyze(fen, {
+      const res = await eng.analyze(fen, {
         movetime,
         onInfo: (info) => {
           const sc = fmtScore(info, side);
-          setStatus(engineStatus, `思考中… 深度 ${info.depth || "-"}　${sc}`, "");
+          setStatus(engineStatus, `思考中…${engName} 深度 ${info.depth || "-"}　${sc}`, "");
         },
       });
       showResult(res);
-      setStatus(engineStatus, "完成。", "ok");
+      setStatus(engineStatus, useWasm ? "完成。" : "完成（內建輕量引擎；如需最強棋力請用 Chrome／Safari 開啟）。", "ok");
     } catch (e) {
       const msg = String(e.message || e);
       setStatus(engineStatus, msg === "NEED_COI" ? "多執行緒未啟用，無法運算（見上說明）。" : "求解失敗：" + msg, "err");
@@ -429,7 +423,7 @@
   if (!Engine.envSupported()) {
     setStatus(
       engineStatus,
-      "提示：目前未啟用多執行緒。部署到 GitHub Pages（含 coi-serviceworker）會自動啟用；本機測試請用 COOP/COEP 伺服器。",
+      "提示：此瀏覽器（如 LINE 內建瀏覽器）不支援多執行緒，將使用內建輕量引擎，殘局求解沒問題。想要最強棋力，可用手機的 Chrome／Safari 開啟本頁。",
       ""
     );
   }
