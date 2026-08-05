@@ -415,12 +415,22 @@
     const sel = $("puzzle-select");
     if (!sel || typeof PUZZLES === "undefined") return;
     sel.innerHTML = "";
+    const groups = {};
     PUZZLES.forEach((p, i) => {
-      const opt = document.createElement("option");
-      opt.value = i;
-      opt.textContent = `${p.name}（${p.level}）`;
-      sel.appendChild(opt);
+      const cat = p.cat || "其他";
+      (groups[cat] = groups[cat] || []).push({ p, i });
     });
+    for (const cat of Object.keys(groups)) {
+      const og = document.createElement("optgroup");
+      og.label = `${cat}（${groups[cat].length}）`;
+      for (const { p, i } of groups[cat]) {
+        const opt = document.createElement("option");
+        opt.value = i;
+        opt.textContent = `${p.name}（${p.level}）`;
+        og.appendChild(opt);
+      }
+      sel.appendChild(og);
+    }
   }
   function loadPuzzle() {
     const sel = $("puzzle-select");
