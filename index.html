@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>象棋殘局教練 · 上傳殘局，解出下一步</title>
+    <title>象棋殘局教練 · 擺出殘局，解出下一步</title>
     <!-- 必須最先載入：在 GitHub Pages 上注入 COOP/COEP，啟用 SharedArrayBuffer -->
     <script src="coi-serviceworker.js"></script>
     <link rel="stylesheet" href="css/style.css" />
@@ -11,7 +11,7 @@
   <body>
     <header class="topbar">
       <h1>象棋殘局教練</h1>
-      <p class="tagline">擺出殘局，或上傳照片，讓引擎算出最佳下一步</p>
+      <p class="tagline">擺出殘局或載入題庫，讓引擎算出最佳下一步</p>
     </header>
 
     <main class="layout">
@@ -60,24 +60,8 @@
           </div>
         </div>
 
-        <div class="card">
-          <h2>2 · 上傳殘局圖片（選用）</h2>
-          <input type="file" id="img-input" accept="image/*" hidden />
-          <input type="file" id="img-input-ocr" accept="image/*" hidden />
-          <button id="btn-upload" class="primary-ghost">☁️ 線上辨識（Gemini，較準）</button>
-          <button id="btn-offline" class="primary-ghost">💻 離線辨識（免金鑰・免下載）</button>
-          <p class="hint">線上辨識實拍照片較準；離線辨識完全在本機、零金鑰，最適合清晰的棋盤截圖。辨識後都請人工校對。</p>
-          <details class="key-box">
-            <summary>進階：改用自己的 Gemini API 金鑰</summary>
-            <input type="password" id="gemini-key" placeholder="貼上你的 Gemini API Key" />
-            <button id="btn-save-key">儲存金鑰</button>
-            <p class="hint tiny">金鑰只存在你這台瀏覽器（localStorage），不會上傳到伺服器或寫進網站原始碼。</p>
-          </details>
-          <div id="vision-status" class="status"></div>
-        </div>
-
         <div class="card solve-card">
-          <h2>3 · 求解</h2>
+          <h2>2 · 求解</h2>
           <div class="difficulty">
             難度：
             <select id="difficulty">
@@ -103,31 +87,6 @@
       </section>
     </main>
 
-    <!-- 離線辨識：框角視窗 -->
-    <div id="ocr-modal" class="modal hidden">
-      <div class="modal-box">
-        <h3>離線辨識 — 框出棋盤四角</h3>
-        <p id="ocr-step" class="hint">
-          點第 <b>1/4</b> 個角：<b>左上</b>（棋盤最外圈的左上交叉點）
-        </p>
-        <div class="ocr-canvas-wrap">
-          <canvas id="ocr-canvas"></canvas>
-        </div>
-        <div class="ocr-controls">
-          <label>紅方在：
-            <select id="ocr-redpos">
-              <option value="bottom">下方</option>
-              <option value="top">上方</option>
-            </select>
-          </label>
-          <button id="ocr-reset">重設四角</button>
-          <button id="ocr-cancel">取消</button>
-          <button id="ocr-run" class="primary" disabled>辨識</button>
-        </div>
-        <div id="ocr-modal-status" class="status"></div>
-      </div>
-    </div>
-
     <footer class="foot">
       引擎：Fairy-Stockfish (WASM) · 純前端運算，資料不離開你的瀏覽器
     </footer>
@@ -138,8 +97,6 @@
     <script src="js/rules.js"></script>
     <script src="js/puzzles.js"></script>
     <script src="js/engine.js"></script>
-    <script src="js/vision.js"></script>
-    <script src="js/ocr.js"></script>
     <script src="js/app.js"></script>
   </body>
 </html>
