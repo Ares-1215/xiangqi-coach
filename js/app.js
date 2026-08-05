@@ -407,6 +407,93 @@
     Vision.setKey($("gemini-key").value);
     setStatus($("vision-status"), "金鑰已儲存於本機。", "ok");
   };
+
+  // ---- 離線 OCR 辨識（框四角） ----
+  const ocrCanvas = $("ocr-canvas");
+  const octx = ocrCanvas.getContext("2d");
+  const CORNER_NAMES = ["左上", "右上", "右下", "左下"];
+  let ocrImg = null,
+    ocrScale = 1,
+    ocrCorners = []; // 自然座標
+
+  $("btn-offline").onclick = () => $("img-input-ocr").click();
+  $("img-input-ocr").onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const img = new Image();
+    img.onload = () => {
+      ocrImg = img;
+      const maxW = Math.min(img.naturalWidth, 520);
+      ocrScale = maxW / img.naturalWidth;
+      ocrCanvas.width = Math.round(img.naturalWidth * ocrScale);
+      ocrCanvas.height = Math.round(img.naturalHeight * ocrScale);
+      ocrCorners = [];
+      drawOcr();
+      updateOcrStep();
+      $("ocr-run").disabled = true;
+      setStatus($("ocr-modal-status"), "", "");
+      $("ocr-modal").classList.remove("hidden");
+    };
+    img.src = URL.createObjectURL(file);
+    e.target.value = "";
+  };
+
+  function drawOcr() {
+    octx.clearRect(0, 0, ocrCanvas.width, ocrCanvas.height);
+    octx.drawImage(ocrImg, 0, 0, ocrCanvas.width, ocrCanvas.height);
+    ocrCorners.forEach((p, i) => {
+      const x = p.x * ocrScale,
+        y = p.y * ocrScale;
+      octx.beginPath();
+      octx.arc(x, y, 9, 0, 7);
+      octx.fillStyle = "rgba(46,125,91,0.85)";
+      octx.fill();
+      octx.fillStyle = "#fff";
+      octx.font = "bold 12px sans-serif";
+      octx.textAlign = "center";
+      octx.textBaseline = "middle";
+      octx.fillText(String(i + 1), x, y);
+    });
+  }
+  function updateOcrStep() {
+    const n = ocrCorners.length;
+    const el = $("ocr-step");
+    if (n < 4) el.innerHTML = `點第 <b>${n + 1}/4</b> 個角：<b>${CORNER_NAMES[n]}</b>（棋盤最外圈交叉點）`;
+    else el.innerHTML = `四角已定，可按「辨識」。點錯可「重設四角」。`;
+  }
+  ocrCanvas.addEventListener("click", (e) => {
+    if (!ocrImg || ocrCorners.length >= 4) return;
+    const rect = ocrCanvas.getBoundingClientRect();
+    const cx = (e.clientX - rect.left) * (ocrCanvas.width / rect.width);
+    const cy = (e.clientY - rect.top) * (ocrCanvas.height / rect.height);
+    ocrCorners.push({ x: cx / ocrScale, y: cy / ocrScale }); // 存自然座標
+    drawOcr();
+    updateOcrStep();
+    if (ocrCorners.length === 4) $("ocr-run").disabled = false;
+  });
+  $("ocr-reset").onclick = () => {
+    ocrCorners = [];
+    drawOcr();
+    updateOcrStep();
+    $("ocr-run").disabled = true;
+  };
+  $("ocr-cancel").onclick = () => $("ocr-modal").classList.add("hidden");
+  $("ocr-run").onclick = () => {
+    if (ocrCorners.length !== 4) return;
+    try {
+      const corners = { tl: ocrCorners[0], tr: ocrCorners[1], br: ocrCorners[2], bl: ocrCorners[3] };
+      const redBottom = $("ocr-redpos").value === "bottom";
+      const res = OCR.recognize(ocrImg, corners, redBottom, side);
+      board = X.fromFEN(res.fen).board;
+      selected = null;
+      clearResult();
+      render();
+      $("ocr-modal").classList.add("hidden");
+      setStatus($("vision-status"), `離線辨識完成，共 ${res.occupied} 子，請務必人工校對後再求解。`, "ok");
+    } catch (err) {
+      setStatus($("ocr-modal-status"), "辨識失敗：" + (err.message || err), "err");
+    }
+  };
   // 還原已存金鑰（遮罩）
   if (Vision.getKey()) $("gemini-key").placeholder = "已儲存金鑰（如需更換請重新輸入）";
 

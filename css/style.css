@@ -192,6 +192,29 @@ body {
 .pv { margin-top: 8px; font-size: 0.9rem; color: #444; }
 .pv b { color: var(--wood-line); }
 
+/* ---- 離線辨識視窗 ---- */
+.modal {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
+}
+.modal.hidden { display: none; }
+.modal-box {
+  background: #fff; border-radius: 12px; padding: 18px;
+  max-width: 92vw; max-height: 92vh; overflow: auto;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+.modal-box h3 { margin: 0 0 8px; color: var(--wood-line); }
+.ocr-canvas-wrap { display: flex; justify-content: center; margin: 10px 0; }
+#ocr-canvas { max-width: 100%; cursor: crosshair; border: 1px solid #ccc; border-radius: 6px; touch-action: none; }
+.ocr-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+.ocr-controls label { margin-right: auto; font-size: 0.9rem; }
+.ocr-controls select { padding: 5px; border-radius: 6px; border: 1px solid #ccc; }
+.ocr-controls button { padding: 8px 14px; border: 1px solid var(--disc-edge); background: #fff; border-radius: 8px; cursor: pointer; }
+.ocr-controls .primary { width: auto; margin-top: 0; }
+.ocr-controls .primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
 .foot { text-align: center; color: var(--muted); font-size: 0.8rem; padding: 20px; }
 
 @media (max-width: 860px) {
