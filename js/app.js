@@ -71,13 +71,20 @@
   // ---- 繪製棋子與熱區 ----
   function render() {
     piecesEl.innerHTML = "";
+    // 選取棋子時計算其合法走點以高亮
+    const targets = new Set();
+    if (selected && mode === "move" && board[selected.r][selected.c]) {
+      for (const m of Rules.legalMovesFrom(board, selected.r, selected.c)) {
+        targets.add(m.r * 9 + m.c);
+      }
+    }
     for (let r = 0; r < 10; r++) {
       for (let c = 0; c < 9; c++) {
         const d = disp(r, c);
         const { xp, yp } = pct(d.r, d.c);
         // 熱區（永遠存在，接收點擊）
         const hot = document.createElement("div");
-        hot.className = "hot";
+        hot.className = "hot" + (targets.has(r * 9 + c) ? " target" : "");
         hot.style.left = xp + "%";
         hot.style.top = yp + "%";
         hot.dataset.r = r;
@@ -98,6 +105,32 @@
       }
     }
     drawArrow();
+    updateCheckStatus();
+  }
+
+  // ---- 將軍/將死狀態顯示 ----
+  function updateCheckStatus() {
+    const el = $("check-status");
+    if (!X.hasBothKings(board)) {
+      el.textContent = "";
+      el.className = "check-status";
+      return;
+    }
+    const st = Rules.status(board, side);
+    const mover = side === "w" ? "紅方" : "黑方";
+    if (st === "checkmate") {
+      el.textContent = `⚑ ${mover}已被將死`;
+      el.className = "check-status mate";
+    } else if (st === "stalemate") {
+      el.textContent = `${mover}無著可走（困斃）`;
+      el.className = "check-status mate";
+    } else if (st === "check") {
+      el.textContent = `⚠ ${mover}正被將軍`;
+      el.className = "check-status check";
+    } else {
+      el.textContent = "";
+      el.className = "check-status";
+    }
   }
 
   // ---- 點擊格子 ----
@@ -345,19 +378,13 @@
   }
 
   // ---- 圖片辨識 ----
-  $("btn-upload").onclick = () => {
-    if (!Vision.getKey()) {
-      setStatus($("vision-status"), "請先在下方展開「設定 Gemini API 金鑰」並儲存金鑰。", "err");
-      document.querySelector(".key-box").open = true;
-      return;
-    }
-    $("img-input").click();
-  };
+  $("btn-upload").onclick = () => $("img-input").click();
   $("img-input").onchange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
     const st = $("vision-status");
-    setStatus(st, "辨識中… 上傳圖片給 Gemini", "");
+    const via = Vision.hasOwnKey() ? "自備金鑰" : "免費代理";
+    setStatus(st, `辨識中…（${via}）上傳圖片給 Gemini`, "");
     try {
       const r = await Vision.recognize(file);
       const parsed = X.fromFEN(r.fen);
@@ -368,8 +395,10 @@
       const conf = r.confidence != null ? `（信心 ${Math.round(r.confidence * 100)}%）` : "";
       setStatus(st, `辨識完成${conf}，請人工校對後再求解。`, "ok");
     } catch (err) {
-      const m = String(err.message || err);
-      setStatus(st, m === "NO_KEY" ? "尚未設定 API 金鑰。" : "辨識失敗：" + m, "err");
+      let m = String(err.message || err);
+      if (m.includes("GEMINI_API_KEY"))
+        m = "免費辨識服務尚未啟用（伺服器金鑰未設定）。可展開下方「進階」改用自己的金鑰。";
+      setStatus(st, "辨識失敗：" + m, "err");
     } finally {
       e.target.value = "";
     }
@@ -381,7 +410,39 @@
   // 還原已存金鑰（遮罩）
   if (Vision.getKey()) $("gemini-key").placeholder = "已儲存金鑰（如需更換請重新輸入）";
 
+  // ---- 殘局題庫 ----
+  function buildPuzzles() {
+    const sel = $("puzzle-select");
+    if (!sel || typeof PUZZLES === "undefined") return;
+    sel.innerHTML = "";
+    PUZZLES.forEach((p, i) => {
+      const opt = document.createElement("option");
+      opt.value = i;
+      opt.textContent = `${p.name}（${p.level}）`;
+      sel.appendChild(opt);
+    });
+  }
+  function loadPuzzle() {
+    const sel = $("puzzle-select");
+    const p = PUZZLES[parseInt(sel.value, 10)];
+    if (!p) return;
+    const parsed = X.fromFEN(p.fen);
+    board = parsed.board;
+    setTurn(parsed.side);
+    selected = null;
+    mode = "move";
+    placePiece = null;
+    highlightPalette(null);
+    setToolActive("move");
+    clearResult();
+    render();
+    $("puzzle-desc").textContent = p.desc;
+    setStatus(engineStatus, "題目已載入，按下方「算出最佳下一步」看解答。", "");
+  }
+  if ($("btn-load-puzzle")) $("btn-load-puzzle").onclick = loadPuzzle;
+
   // ---- 啟動 ----
+  buildPuzzles();
   buildPalette();
   drawBoardBg();
   setToolActive("move");

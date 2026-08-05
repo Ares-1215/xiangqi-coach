@@ -30,10 +30,20 @@
           <button id="turn-red" class="turn-btn active">紅方先走</button>
           <button id="turn-black" class="turn-btn">黑方先走</button>
         </div>
+        <div id="check-status" class="check-status"></div>
       </section>
 
       <!-- 右：控制與結果 -->
       <section class="panel">
+        <div class="card puzzle-card">
+          <h2>📚 殘局題庫</h2>
+          <div class="puzzle-row">
+            <select id="puzzle-select"></select>
+            <button id="btn-load-puzzle" class="primary-ghost">載入</button>
+          </div>
+          <p class="hint" id="puzzle-desc">選一則經典殺法，一鍵擺上棋盤練習。</p>
+        </div>
+
         <div class="card">
           <h2>1 · 擺放棋子</h2>
           <div class="palette" id="palette-red"></div>
@@ -54,9 +64,9 @@
           <h2>2 · 上傳殘局圖片（選用）</h2>
           <input type="file" id="img-input" accept="image/*" hidden />
           <button id="btn-upload" class="primary-ghost">📷 選擇殘局圖片</button>
-          <p class="hint">用 Google Gemini 自動辨識棋盤，辨識後請人工校對。</p>
+          <p class="hint">用 Google Gemini 自動辨識棋盤（免費，無需自備金鑰），辨識後請人工校對。</p>
           <details class="key-box">
-            <summary>設定 Gemini API 金鑰</summary>
+            <summary>進階：改用自己的 Gemini API 金鑰</summary>
             <input type="password" id="gemini-key" placeholder="貼上你的 Gemini API Key" />
             <button id="btn-save-key">儲存金鑰</button>
             <p class="hint tiny">金鑰只存在你這台瀏覽器（localStorage），不會上傳到伺服器或寫進網站原始碼。</p>
@@ -98,6 +108,8 @@
     <!-- 引擎工廠：定義全域 Stockfish() -->
     <script src="engine/stockfish.js"></script>
     <script src="js/xiangqi.js"></script>
+    <script src="js/rules.js"></script>
+    <script src="js/puzzles.js"></script>
     <script src="js/engine.js"></script>
     <script src="js/vision.js"></script>
     <script src="js/app.js"></script>

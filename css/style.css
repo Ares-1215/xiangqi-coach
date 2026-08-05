@@ -97,7 +97,19 @@ body {
   z-index: 1;
   cursor: pointer;
 }
-.hot.target { background: var(--hl); }
+.hot.target {
+  background: radial-gradient(circle, var(--accent) 0 26%, transparent 30%);
+  opacity: 0.75;
+}
+.hot.target:hover { opacity: 1; }
+
+.check-status { text-align: center; min-height: 1.4em; margin-top: 6px; font-weight: 700; font-size: 0.95rem; }
+.check-status.check { color: #d9822b; }
+.check-status.mate { color: var(--accent-red); }
+
+.puzzle-card .puzzle-row { display: flex; gap: 8px; }
+.puzzle-card select { flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 8px; font-size: 0.9rem; }
+.puzzle-card .primary-ghost { width: auto; flex: 0 0 auto; margin-top: 0; padding: 8px 16px; }
 
 .side-turn { text-align: center; margin-top: 12px; }
 .turn-btn {
