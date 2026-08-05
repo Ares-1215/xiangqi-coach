@@ -215,6 +215,31 @@ body {
 .ocr-controls .primary { width: auto; margin-top: 0; }
 .ocr-controls .primary:disabled { opacity: 0.5; cursor: not-allowed; }
 
+.inapp-tip {
+  max-width: 1080px;
+  margin: 8px auto 0;
+  padding: 10px 14px;
+  background: #fff5e0;
+  border: 1px solid #e5c98a;
+  border-radius: 10px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 0.86rem;
+  color: #6b4423;
+  line-height: 1.5;
+}
+.inapp-tip.hidden { display: none; }
+.inapp-tip button {
+  margin-left: auto;
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  cursor: pointer;
+  color: #6b4423;
+  flex: 0 0 auto;
+}
+
 .foot { text-align: center; color: var(--muted); font-size: 0.8rem; padding: 20px; }
 
 @media (max-width: 860px) {

@@ -426,5 +426,12 @@
       "提示：此瀏覽器（如 LINE 內建瀏覽器）不支援多執行緒，將使用內建輕量引擎，殘局求解沒問題。想要最強棋力，可用手機的 Chrome／Safari 開啟本頁。",
       ""
     );
+    if (localStorage.getItem("xq_hide_inapp_tip") !== "1") {
+      $("inapp-tip").classList.remove("hidden");
+    }
   }
+  $("inapp-tip-close").onclick = () => {
+    $("inapp-tip").classList.add("hidden");
+    localStorage.setItem("xq_hide_inapp_tip", "1");
+  };
 })();
